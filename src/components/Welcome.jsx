@@ -1,12 +1,33 @@
-function Welcome() {
-  return (
-    <div className="welcome-container">
-      <div className="welcome-card">
-        <p className="signup-subtitle">EXPENSE TRACKER</p>
+function Welcome({ user, onCompleteProfile }) {
+  const isProfileComplete = Boolean(user?.displayName && user?.photoURL);
 
-        <h1>
-          Welcome to <span>Expense Tracker</span>
-        </h1>
+  // Profile incomplete screen
+  if (!isProfileComplete) {
+    return (
+      <div className="welcome-container">
+        <header className="welcome-header">
+          <h5>Welcome to Expense Tracker!!!</h5>
+
+          <div className="profile-notice">
+            Your profile is incomplete.{" "}
+            <button onClick={onCompleteProfile} className="auth-link">
+              Complete now
+            </button>
+          </div>
+        </header>
+      </div>
+    );
+  }
+
+  // Profile completed screen
+  return (
+    <div className="welcome-container completed-welcome">
+      <div className="completed-content">
+        <h1>Welcome to Expense Tracker!!!</h1>
+
+        <img src={user.photoURL} alt="Profile" className="profile-avatar" />
+
+        <h3>{user.displayName}</h3>
       </div>
     </div>
   );

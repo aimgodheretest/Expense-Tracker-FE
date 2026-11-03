@@ -190,3 +190,80 @@ body {
     font-size: 23px;
   }
 }
+
+/* Welcome Screen */
+
+.welcome-container {
+  min-height: 100vh;
+  background: #0d090a;
+}
+
+/* Incomplete Profile Header */
+
+.welcome-header {
+  width: 100%;
+  min-height: 70px;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  background: #191416;
+  border-bottom: 1px solid #382b2e;
+}
+
+.welcome-header h5 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.profile-notice {
+  background: #211b1d;
+  color: #f5f5f5;
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+/* Completed Profile Screen */
+
+.completed-welcome {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 30px 20px;
+}
+
+.completed-content h1 {
+  color: #f5f5f5;
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 30px;
+}
+
+.completed-content h3 {
+  color: #f5f5f5;
+  font-size: 24px;
+  margin-top: 12px;
+}
+
+.profile-avatar {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid #f33340;
+}
+
+@media (max-width: 576px) {
+  .welcome-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .completed-content h1 {
+    font-size: 24px;
+  }
+}
