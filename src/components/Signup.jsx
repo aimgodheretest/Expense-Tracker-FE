@@ -2,7 +2,7 @@ import { useState } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../services/firebase";
 
-function Signup() {
+function Signup({ onLoginClick }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -126,7 +126,12 @@ function Signup() {
         </form>
 
         <p className="signup-footer">
-          Already have an account? <span>Login</span>
+          Already have an account?{" "}
+          <span>
+            <button type="button" className="auth-link" onClick={onLoginClick}>
+              Login
+            </button>
+          </span>
         </p>
       </div>
     </div>
