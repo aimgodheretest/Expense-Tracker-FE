@@ -2,7 +2,7 @@ import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../services/firebase";
 
-function Login({ onLoginSuccess, onSignupClick }) {
+function Login({ onSignupClick }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -31,9 +31,6 @@ function Login({ onLoginSuccess, onSignupClick }) {
 
       // Store token
       localStorage.setItem("token", token);
-
-      // Show welcome screen
-      onLoginSuccess();
     } catch (error) {
       console.error("Login error:", error.code);
 

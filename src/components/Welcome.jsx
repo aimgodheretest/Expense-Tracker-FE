@@ -1,7 +1,6 @@
 function Welcome({ user, onCompleteProfile }) {
   const isProfileComplete = Boolean(user?.displayName && user?.photoURL);
 
-  // Profile incomplete screen
   if (!isProfileComplete) {
     return (
       <div className="welcome-container">
@@ -19,7 +18,6 @@ function Welcome({ user, onCompleteProfile }) {
     );
   }
 
-  // Profile completed screen
   return (
     <div className="welcome-container completed-welcome">
       <div className="completed-content">
@@ -28,6 +26,10 @@ function Welcome({ user, onCompleteProfile }) {
         <img src={user.photoURL} alt="Profile" className="profile-avatar" />
 
         <h3>{user.displayName}</h3>
+
+        <button className="btn signup-btn mt-3" onClick={onCompleteProfile}>
+          Edit Profile
+        </button>
       </div>
     </div>
   );

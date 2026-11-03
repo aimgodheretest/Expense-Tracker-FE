@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { updateProfile } from "firebase/auth";
-import { auth } from "../services/firebase";
 
-function CompleteProfile({ onCancel, onUpdated }) {
-  const [fullName, setFullName] = useState(auth.currentUser?.displayName || "");
+import { auth, getAccountInfo } from "../services/firebase";
 
-  const [photoURL, setPhotoURL] = useState(auth.currentUser?.photoURL || "");
+function CompleteProfile({ user, onCancel, onUpdated }) {
+  const [fullName, setFullName] = useState(user?.displayName || "");
+
+  const [photoURL, setPhotoURL] = useState(user?.photoURL || "");
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -20,19 +21,28 @@ function CompleteProfile({ onCancel, onUpdated }) {
     }
 
     if (!auth.currentUser) {
-      setError("Please login again to update your profile.");
+      setError("Please login again.");
       return;
     }
 
     try {
       setLoading(true);
 
+      // Update Firebase user profile
       await updateProfile(auth.currentUser, {
         displayName: fullName.trim(),
         photoURL: photoURL.trim(),
       });
 
-      onUpdated();
+      // Get refreshed ID token
+      const idToken = await auth.currentUser.getIdToken(true);
+
+      localStorage.setItem("token", idToken);
+
+      // Fetch updated account information
+      const updatedProfile = await getAccountInfo(idToken);
+
+      onUpdated(updatedProfile);
     } catch (error) {
       console.error("Profile update error:", error);
 
@@ -46,16 +56,11 @@ function CompleteProfile({ onCancel, onUpdated }) {
     <div className="profile-container">
       <header className="welcome-header">
         <h5>Winners never quit, Quitters never win.</h5>
-
-        <div className="profile-notice">
-          Your profile is incomplete.
-          <span> Complete your details below.</span>
-        </div>
       </header>
 
       <div className="profile-form-container">
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <h4>Contact Details</h4>
+          <h4>Edit User Details</h4>
 
           <button
             type="button"
@@ -78,7 +83,6 @@ function CompleteProfile({ onCancel, onUpdated }) {
                 type="text"
                 id="fullName"
                 className="form-control custom-input"
-                placeholder="Enter your full name"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 required
@@ -94,7 +98,6 @@ function CompleteProfile({ onCancel, onUpdated }) {
                 type="url"
                 id="photoURL"
                 className="form-control custom-input"
-                placeholder="https://example.com/photo.jpg"
                 value={photoURL}
                 onChange={(e) => setPhotoURL(e.target.value)}
                 required
