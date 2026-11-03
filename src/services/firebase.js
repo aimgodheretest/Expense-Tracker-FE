@@ -28,9 +28,7 @@ export async function getAccountInfo(idToken) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        idToken: idToken,
-      }),
+      body: JSON.stringify({ idToken }),
     },
   );
 
@@ -46,9 +44,52 @@ export async function getAccountInfo(idToken) {
 
   const user = data.users[0];
 
-  // Normalize Firebase REST response for our React components
+  // Normalize Firebase REST response for React components
   return {
     ...user,
     photoURL: user.photoUrl || "",
+    emailVerified: user.emailVerified === true,
   };
+}
+
+// Send email verification link
+export async function sendEmailVerification(idToken) {
+  const response = await fetch(
+    `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${firebaseApiKey}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        requestType: "VERIFY_EMAIL",
+        idToken,
+      }),
+    },
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    const errorCode = data.error?.message;
+
+    const errorMessages = {
+      INVALID_ID_TOKEN: "Your login session has expired. Please log in again.",
+      USER_NOT_FOUND: "User account not found. Please log in again.",
+      INVALID_EMAIL:
+        "The email address associated with this account is invalid.",
+      MISSING_EMAIL: "No email address is associated with this account.",
+      API_KEY_INVALID: "Firebase API configuration is invalid.",
+      TOO_MANY_ATTEMPTS_TRY_LATER: "Too many attempts. Please try again later.",
+      OPERATION_NOT_ALLOWED:
+        "Email verification is not enabled for this Firebase project.",
+    };
+
+    throw new Error(
+      errorMessages[errorCode] ||
+        "Unable to send verification email. Please try again.",
+    );
+  }
+
+  return data;
 }

@@ -6,7 +6,11 @@ import Login from "./components/Login";
 import Welcome from "./components/Welcome";
 import CompleteProfile from "./components/CompleteProfile";
 
-import { auth, getAccountInfo } from "./services/firebase";
+import {
+  auth,
+  getAccountInfo,
+  sendEmailVerification,
+} from "./services/firebase";
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState("login");
@@ -67,6 +71,31 @@ function App() {
     setCurrentScreen("welcome");
   };
 
+  // Send verification email
+  const handleVerifyEmail = async () => {
+    if (!auth.currentUser) {
+      throw new Error("Please log in again.");
+    }
+
+    const idToken = await auth.currentUser.getIdToken(true);
+
+    return sendEmailVerification(idToken);
+  };
+
+  // Refresh verification status from Firebase
+  const handleRefreshVerification = async () => {
+    if (!auth.currentUser) {
+      throw new Error("Please log in again.");
+    }
+
+    const idToken = await auth.currentUser.getIdToken(true);
+    const profile = await getAccountInfo(idToken);
+
+    setUserProfile(profile);
+
+    return profile.emailVerified;
+  };
+
   if (authLoading) {
     return <div className="auth-loading">Loading your profile...</div>;
   }
@@ -85,6 +114,8 @@ function App() {
         <Welcome
           user={userProfile}
           onCompleteProfile={() => setCurrentScreen("profile")}
+          onVerifyEmail={handleVerifyEmail}
+          onRefreshVerification={handleRefreshVerification}
         />
       )}
 
