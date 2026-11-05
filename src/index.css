@@ -684,3 +684,37 @@ body {
     padding: 18px;
   }
 }
+
+/* Expense Edit and Delete Actions */
+
+.expense-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.expense-actions strong {
+  margin-right: 8px;
+}
+
+.expense-actions .btn {
+  min-width: 65px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+@media (max-width: 576px) {
+  .expense-item {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .expense-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .expense-actions strong {
+    margin-right: auto;
+  }
+}

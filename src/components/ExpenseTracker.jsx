@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import {
   addExpenseToDatabase,
   getExpensesFromDatabase,
+  updateExpenseInDatabase,
+  deleteExpenseFromDatabase,
 } from "../services/firebase";
 
 function ExpenseTracker() {
@@ -13,6 +15,8 @@ function ExpenseTracker() {
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+  const [editingExpenseId, setEditingExpenseId] = useState(null);
   const [error, setError] = useState("");
 
   // GET: Fetch expenses when the component loads
@@ -49,13 +53,20 @@ function ExpenseTracker() {
     };
   }, []);
 
-  // POST: Save expense to Firebase
+  // Reset form fields
+  const resetForm = () => {
+    setAmount("");
+    setDescription("");
+    setCategory("Food");
+    setEditingExpenseId(null);
+  };
+
+  // POST / PUT: Add or update an expense
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     setError("");
 
-    const newExpense = {
+    const expenseData = {
       amount: Number(amount),
       description: description.trim(),
       category,
@@ -64,20 +75,72 @@ function ExpenseTracker() {
     try {
       setSubmitting(true);
 
-      const savedExpense = await addExpenseToDatabase(newExpense);
+      if (editingExpenseId) {
+        // PUT: Update existing expense
+        const updatedExpense = await updateExpenseInDatabase(
+          editingExpenseId,
+          expenseData,
+        );
 
-      // Update UI only after Firebase successfully saves the expense
-      setExpenses((prevExpenses) => [...prevExpenses, savedExpense]);
+        setExpenses((prevExpenses) =>
+          prevExpenses.map((expense) =>
+            expense.id === editingExpenseId ? updatedExpense : expense,
+          ),
+        );
+      } else {
+        // POST: Add new expense
+        const savedExpense = await addExpenseToDatabase(expenseData);
 
-      // Reset form after successful submission
-      setAmount("");
-      setDescription("");
-      setCategory("Food");
+        setExpenses((prevExpenses) => [...prevExpenses, savedExpense]);
+      }
+
+      resetForm();
     } catch (error) {
-      console.error("Adding expense error:", error);
+      console.error("Saving expense error:", error);
       setError(error.message);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  // Edit: Populate form with existing expense details
+  const handleEdit = (expense) => {
+    setEditingExpenseId(expense.id);
+    setAmount(String(expense.amount));
+    setDescription(expense.description);
+    setCategory(expense.category);
+    setError("");
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
+  // DELETE: Remove expense from Firebase
+  const handleDelete = async (expenseId) => {
+    setError("");
+
+    try {
+      setDeletingId(expenseId);
+
+      await deleteExpenseFromDatabase(expenseId);
+
+      setExpenses((prevExpenses) =>
+        prevExpenses.filter((expense) => expense.id !== expenseId),
+      );
+
+      // Cancel editing if the currently edited expense is deleted
+      if (editingExpenseId === expenseId) {
+        resetForm();
+      }
+
+      console.log("Expense successfuly deleted");
+    } catch (error) {
+      console.error("Deleting expense error:", error);
+      setError(error.message);
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -88,9 +151,9 @@ function ExpenseTracker() {
         <p>Track and manage your daily spending.</p>
       </div>
 
-      {/* Add Expense Form */}
+      {/* Add / Edit Expense Form */}
       <div className="expense-form-card">
-        <h5>Add New Expense</h5>
+        <h5>{editingExpenseId ? "Edit Expense" : "Add New Expense"}</h5>
 
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
@@ -162,8 +225,23 @@ function ExpenseTracker() {
               !description.trim()
             }
           >
-            {submitting ? "Saving Expense..." : "Add Expense"}
+            {submitting
+              ? "Saving..."
+              : editingExpenseId
+                ? "Update Expense"
+                : "Add Expense"}
           </button>
+
+          {editingExpenseId && (
+            <button
+              type="button"
+              className="btn btn-outline-danger w-100 mt-2"
+              onClick={resetForm}
+              disabled={submitting}
+            >
+              Cancel Editing
+            </button>
+          )}
         </form>
       </div>
 
@@ -181,12 +259,36 @@ function ExpenseTracker() {
           <div className="expense-list">
             {expenses.map((expense) => (
               <div className="expense-item" key={expense.id}>
-                <div>
+                <div className="expense-details">
                   <h6>{expense.description}</h6>
                   <span>{expense.category}</span>
                 </div>
 
-                <strong>₹{Number(expense.amount).toFixed(2)}</strong>
+                <div className="expense-actions">
+                  <strong>₹{Number(expense.amount).toFixed(2)}</strong>
+
+                  <button
+                    type="button"
+                    className="btn btn-outline-danger btn-sm"
+                    onClick={() => handleEdit(expense)}
+                    disabled={
+                      submitting ||
+                      deletingId !== null ||
+                      editingExpenseId !== null
+                    }
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    type="button"
+                    className="btn btn-outline-danger btn-sm"
+                    onClick={() => handleDelete(expense.id)}
+                    disabled={submitting || deletingId !== null}
+                  >
+                    {deletingId === expense.id ? "Deleting..." : "Delete"}
+                  </button>
+                </div>
               </div>
             ))}
           </div>

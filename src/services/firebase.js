@@ -141,25 +141,27 @@ export async function sendPasswordResetEmailRequest(email) {
 
 const firebaseDatabaseUrl = import.meta.env.VITE_FIREBASE_DATABASE_URL;
 
-// Get the authenticated user's expense database path
-async function getExpenseDatabaseUrl() {
+// Get the authenticated user's expense database URL
+async function getExpenseDatabaseUrl(expenseId = "") {
   const user = auth.currentUser;
 
   if (!user) {
     throw new Error("Please log in to manage your expenses.");
   }
 
-  const idToken = await user.getIdToken();
-
   if (!firebaseDatabaseUrl) {
-    throw new Error(
-      "Firebase Realtime Database URL is missing. Check your .env file.",
-    );
+    throw new Error("Firebase Realtime Database URL is missing.");
   }
+
+  const idToken = await user.getIdToken();
 
   const baseUrl = firebaseDatabaseUrl.replace(/\/$/, "");
 
-  return `${baseUrl}/users/${user.uid}/expenses.json?auth=${idToken}`;
+  const expensePath = expenseId
+    ? `/users/${user.uid}/expenses/${expenseId}.json`
+    : `/users/${user.uid}/expenses.json`;
+
+  return `${baseUrl}${expensePath}?auth=${idToken}`;
 }
 
 // POST: Add an expense to Firebase Realtime Database
@@ -208,4 +210,54 @@ export async function getExpensesFromDatabase() {
     ...expense,
     id,
   }));
+}
+
+// PUT: Update an existing expense
+export async function updateExpenseInDatabase(expenseId, expense) {
+  const url = await getExpenseDatabaseUrl(expenseId);
+
+  const response = await fetch(url, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(expense),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data.error || "Failed to update expense. Please try again.",
+    );
+  }
+
+  return {
+    ...data,
+    id: expenseId,
+  };
+}
+
+// DELETE: Remove an expense from Firebase
+export async function deleteExpenseFromDatabase(expenseId) {
+  const url = await getExpenseDatabaseUrl(expenseId);
+
+  const response = await fetch(url, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    let errorMessage = "Failed to delete expense. Please try again.";
+
+    try {
+      const data = await response.json();
+      errorMessage = data.error || errorMessage;
+    } catch {
+      // Keep the default error message if no JSON response exists.
+    }
+
+    throw new Error(errorMessage);
+  }
+
+  return true;
 }
