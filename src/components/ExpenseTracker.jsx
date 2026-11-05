@@ -1,27 +1,84 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+import {
+  addExpenseToDatabase,
+  getExpensesFromDatabase,
+} from "../services/firebase";
 
 function ExpenseTracker() {
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("Food");
-  const [expenses, setExpenses] = useState([]);
 
-  const handleSubmit = (e) => {
+  const [expenses, setExpenses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
+  // GET: Fetch expenses when the component loads
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchExpenses = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const data = await getExpensesFromDatabase();
+
+        if (isMounted) {
+          setExpenses(data);
+        }
+      } catch (error) {
+        console.error("Fetching expenses error:", error);
+
+        if (isMounted) {
+          setError(error.message);
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchExpenses();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // POST: Save expense to Firebase
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
+    setError("");
+
     const newExpense = {
-      id: crypto.randomUUID(),
       amount: Number(amount),
       description: description.trim(),
       category,
     };
 
-    setExpenses((prevExpenses) => [...prevExpenses, newExpense]);
+    try {
+      setSubmitting(true);
 
-    // Reset form fields
-    setAmount("");
-    setDescription("");
-    setCategory("Food");
+      const savedExpense = await addExpenseToDatabase(newExpense);
+
+      // Update UI only after Firebase successfully saves the expense
+      setExpenses((prevExpenses) => [...prevExpenses, savedExpense]);
+
+      // Reset form after successful submission
+      setAmount("");
+      setDescription("");
+      setCategory("Food");
+    } catch (error) {
+      console.error("Adding expense error:", error);
+      setError(error.message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -93,12 +150,19 @@ function ExpenseTracker() {
             </select>
           </div>
 
+          {error && <div className="alert alert-danger py-2">{error}</div>}
+
           <button
             type="submit"
             className="btn signup-btn w-100"
-            disabled={!amount || Number(amount) <= 0 || !description.trim()}
+            disabled={
+              submitting ||
+              !amount ||
+              Number(amount) <= 0 ||
+              !description.trim()
+            }
           >
-            Add Expense
+            {submitting ? "Saving Expense..." : "Add Expense"}
           </button>
         </form>
       </div>
@@ -107,7 +171,9 @@ function ExpenseTracker() {
       <div className="expense-list-section">
         <h5>Your Expenses</h5>
 
-        {expenses.length === 0 ? (
+        {loading ? (
+          <p className="no-expenses">Loading your expenses...</p>
+        ) : expenses.length === 0 ? (
           <p className="no-expenses">
             No expenses added yet. Start tracking your spending!
           </p>
@@ -120,7 +186,7 @@ function ExpenseTracker() {
                   <span>{expense.category}</span>
                 </div>
 
-                <strong>₹{expense.amount.toFixed(2)}</strong>
+                <strong>₹{Number(expense.amount).toFixed(2)}</strong>
               </div>
             ))}
           </div>

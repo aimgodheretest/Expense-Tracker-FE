@@ -138,3 +138,74 @@ export async function sendPasswordResetEmailRequest(email) {
 
   return data;
 }
+
+const firebaseDatabaseUrl = import.meta.env.VITE_FIREBASE_DATABASE_URL;
+
+// Get the authenticated user's expense database path
+async function getExpenseDatabaseUrl() {
+  const user = auth.currentUser;
+
+  if (!user) {
+    throw new Error("Please log in to manage your expenses.");
+  }
+
+  const idToken = await user.getIdToken();
+
+  if (!firebaseDatabaseUrl) {
+    throw new Error(
+      "Firebase Realtime Database URL is missing. Check your .env file.",
+    );
+  }
+
+  const baseUrl = firebaseDatabaseUrl.replace(/\/$/, "");
+
+  return `${baseUrl}/users/${user.uid}/expenses.json?auth=${idToken}`;
+}
+
+// POST: Add an expense to Firebase Realtime Database
+export async function addExpenseToDatabase(expense) {
+  const url = await getExpenseDatabaseUrl();
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(expense),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || "Failed to save expense. Please try again.");
+  }
+
+  return {
+    ...expense,
+    id: data.name,
+  };
+}
+
+// GET: Fetch all expenses from Firebase Realtime Database
+export async function getExpensesFromDatabase() {
+  const url = await getExpenseDatabaseUrl();
+
+  const response = await fetch(url);
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data.error || "Failed to fetch expenses. Please try again.",
+    );
+  }
+
+  if (!data) {
+    return [];
+  }
+
+  return Object.entries(data).map(([id, expense]) => ({
+    ...expense,
+    id,
+  }));
+}

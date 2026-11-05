@@ -486,9 +486,21 @@ body {
 }
 
 .edit-profile-btn {
+  background: transparent;
+  color: #f33340;
+  border: 1px solid #f33340;
   margin-top: 0;
-  padding: 9px 14px;
+  padding: 9px 20px;
+  border-radius: 7px;
+  font-size: 14px;
+  font-weight: 600;
   white-space: nowrap;
+  transition: 0.2s ease;
+}
+
+.edit-profile-btn:hover {
+  background: #f33340;
+  color: #fff;
 }
 
 .header-actions .logout-btn {
