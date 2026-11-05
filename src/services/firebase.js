@@ -93,3 +93,48 @@ export async function sendEmailVerification(idToken) {
 
   return data;
 }
+
+// Send forgotPassword reset link
+export async function sendPasswordResetEmailRequest(email) {
+  const response = await fetch(
+    `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${firebaseApiKey}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        requestType: "PASSWORD_RESET",
+        email: email.trim(),
+      }),
+    },
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    const errorCode = data.error?.message;
+
+    // Keep the response neutral if the account doesn't exist.
+    if (errorCode === "EMAIL_NOT_FOUND") {
+      return { email, accountNotFound: true };
+    }
+
+    const errorMessages = {
+      INVALID_EMAIL: "Please enter a valid email address.",
+      MISSING_EMAIL: "Email address is required.",
+      API_KEY_INVALID: "Firebase API configuration is invalid.",
+      TOO_MANY_ATTEMPTS_TRY_LATER: "Too many attempts. Please try again later.",
+      OPERATION_NOT_ALLOWED:
+        "Password reset is not enabled for this Firebase project.",
+      USER_DISABLED: "This account has been disabled.",
+    };
+
+    throw new Error(
+      errorMessages[errorCode] ||
+        "Unable to send password reset email. Please try again.",
+    );
+  }
+
+  return data;
+}

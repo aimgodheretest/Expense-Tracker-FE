@@ -2,7 +2,7 @@ import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../services/firebase";
 
-function Login({ onSignupClick }) {
+function Login({ onSignupClick, onForgotPasswordClick }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -26,10 +26,8 @@ function Login({ onSignupClick }) {
         password,
       );
 
-      // Retrieve Firebase ID token
       const token = await userCredential.user.getIdToken();
 
-      // Store token
       localStorage.setItem("token", token);
     } catch (error) {
       console.error("Login error:", error.code);
@@ -91,7 +89,7 @@ function Login({ onSignupClick }) {
             />
           </div>
 
-          <div className="mb-3">
+          <div className="mb-2">
             <label htmlFor="password" className="form-label">
               Password
             </label>
@@ -105,6 +103,16 @@ function Login({ onSignupClick }) {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+          </div>
+
+          <div className="text-end mb-3">
+            <button
+              type="button"
+              className="auth-link"
+              onClick={onForgotPasswordClick}
+            >
+              Forgot password?
+            </button>
           </div>
 
           {error && <div className="alert alert-danger py-2">{error}</div>}

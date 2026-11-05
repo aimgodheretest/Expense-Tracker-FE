@@ -5,6 +5,7 @@ import Signup from "./components/Signup";
 import Login from "./components/Login";
 import Welcome from "./components/Welcome";
 import CompleteProfile from "./components/CompleteProfile";
+import ForgotPassword from "./components/ForgotPassword";
 
 import {
   auth,
@@ -118,7 +119,14 @@ function App() {
       )}
 
       {currentScreen === "login" && (
-        <Login onSignupClick={() => setCurrentScreen("signup")} />
+        <Login
+          onSignupClick={() => setCurrentScreen("signup")}
+          onForgotPasswordClick={() => setCurrentScreen("forgot-password")}
+        />
+      )}
+
+      {currentScreen === "forgot-password" && (
+        <ForgotPassword onBackToLogin={() => setCurrentScreen("login")} />
       )}
 
       {currentScreen === "welcome" && (
