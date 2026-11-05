@@ -425,16 +425,114 @@ body {
   color: #fff;
 }
 
-.completed-welcome>.logout-btn {
+/* Completed Dashboard Header */
+
+.completed-welcome {
+  position: relative;
+  display: block;
+  min-height: 100vh;
+  padding: 0 0 40px;
+}
+
+.dashboard-header {
+  position: relative;
+  min-height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 30px;
+  background: #191416;
+  border-bottom: 1px solid #382b2e;
+}
+
+.dashboard-header h1 {
+  margin: 0;
+  color: #f5f5f5;
+  font-size: 30px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.dashboard-header h1 span {
+  color: #f33340;
+}
+
+.header-actions {
   position: absolute;
-  top: 20px;
-  right: 25px;
+  right: 30px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.header-profile {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.header-profile span {
+  color: #f5f5f5;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.header-avatar {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid #f33340;
+}
+
+.edit-profile-btn {
+  margin-top: 0;
+  padding: 9px 14px;
+  white-space: nowrap;
+}
+
+.header-actions .logout-btn {
+  white-space: nowrap;
+}
+
+/* Responsive Dashboard Header */
+
+@media (max-width: 1100px) {
+  .dashboard-header {
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+  }
+
+  .header-actions {
+    position: static;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
 }
 
 @media (max-width: 576px) {
-  .completed-welcome>.logout-btn {
-    top: 15px;
-    right: 15px;
+  .dashboard-header h1 {
+    font-size: 23px;
+  }
+
+  .header-actions {
+    gap: 10px;
+  }
+
+  .header-profile span {
+    font-size: 12px;
+  }
+
+  .header-avatar {
+    width: 34px;
+    height: 34px;
+  }
+
+  .edit-profile-btn,
+  .header-actions .logout-btn {
+    padding: 8px 10px;
+    font-size: 12px;
   }
 }
 
@@ -475,4 +573,102 @@ body {
 
 .forgot-password-success .signup-btn {
   margin-top: 15px;
+}
+
+/* Daily Expense Tracker */
+
+.expense-tracker {
+  width: min(900px, calc(100% - 40px));
+  margin: 35px auto;
+  text-align: left;
+}
+
+.expense-header {
+  margin-bottom: 20px;
+}
+
+.expense-header h2 {
+  color: #f5f5f5;
+  font-size: 25px;
+  font-weight: 700;
+}
+
+.expense-header p {
+  color: #a49a9d;
+  font-size: 13px;
+}
+
+.expense-form-card,
+.expense-list-section {
+  background: #191416;
+  border: 1px solid #382b2e;
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 25px;
+}
+
+.expense-form-card h5,
+.expense-list-section h5 {
+  color: #f5f5f5;
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.expense-form-card .custom-input option {
+  background: #211b1d;
+  color: #f5f5f5;
+}
+
+.expense-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.expense-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
+  background: #211b1d;
+  border: 1px solid #382b2e;
+  border-radius: 8px;
+}
+
+.expense-item h6 {
+  color: #f5f5f5;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.expense-item span {
+  color: #a49a9d;
+  font-size: 12px;
+}
+
+.expense-item strong {
+  color: #f33340;
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+.no-expenses {
+  color: #a49a9d;
+  font-size: 13px;
+  text-align: center;
+  padding: 20px 0;
+  margin: 0;
+}
+
+@media (max-width: 576px) {
+  .expense-tracker {
+    width: calc(100% - 30px);
+  }
+
+  .expense-form-card,
+  .expense-list-section {
+    padding: 18px;
+  }
 }

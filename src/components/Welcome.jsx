@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+import ExpenseTracker from "./ExpenseTracker";
 function Welcome({
   user,
   onCompleteProfile,
@@ -51,33 +51,27 @@ function Welcome({
     }
   };
 
-  const verificationSection = (
+  const verificationSection = !user?.emailVerified && (
     <div className="verification-section">
-      {user?.emailVerified ? (
-        <p className="verification-success">Email verified successfully!</p>
-      ) : (
-        <>
-          <p>Your email is not verified yet.</p>
+      <p>Your email is not verified yet.</p>
 
-          <button
-            type="button"
-            className="btn signup-btn mt-2"
-            onClick={handleSendVerification}
-            disabled={verificationLoading}
-          >
-            {verificationLoading ? "Sending..." : "Verify Email"}
-          </button>
+      <button
+        type="button"
+        className="btn signup-btn mt-2"
+        onClick={handleSendVerification}
+        disabled={verificationLoading}
+      >
+        {verificationLoading ? "Sending..." : "Verify Email"}
+      </button>
 
-          <button
-            type="button"
-            className="btn signup-btn mt-2"
-            onClick={handleCheckVerification}
-            disabled={verificationLoading}
-          >
-            I've verified my email
-          </button>
-        </>
-      )}
+      <button
+        type="button"
+        className="btn signup-btn mt-2"
+        onClick={handleCheckVerification}
+        disabled={verificationLoading}
+      >
+        I've verified my email
+      </button>
 
       {verificationMessage && (
         <p className="verification-message">{verificationMessage}</p>
@@ -117,6 +111,7 @@ function Welcome({
         </header>
 
         {verificationSection}
+        <ExpenseTracker />
       </div>
     );
   }
@@ -124,31 +119,39 @@ function Welcome({
   // Completed profile screen
   return (
     <div className="welcome-container completed-welcome">
-      <button
-        type="button"
-        className="btn btn-outline-danger logout-btn"
-        onClick={onLogout}
-      >
-        Logout
-      </button>
+      <header className="dashboard-header">
+        <h1>
+          Welcome to Expense <span>Tracker!!!</span>
+        </h1>
 
-      <div className="completed-content">
-        <h1>Welcome to Expense Tracker!!!</h1>
+        <div className="header-actions">
+          <div className="header-profile">
+            <img src={user.photoURL} alt="Profile" className="header-avatar" />
 
-        <img src={user.photoURL} alt="Profile" className="profile-avatar" />
+            <span>{user.displayName}</span>
+          </div>
 
-        <h3>{user.displayName}</h3>
+          <button
+            type="button"
+            className="btn signup-btn edit-profile-btn"
+            onClick={onCompleteProfile}
+          >
+            Edit Profile
+          </button>
 
-        <button
-          type="button"
-          className="btn signup-btn mt-3"
-          onClick={onCompleteProfile}
-        >
-          Edit Profile
-        </button>
-      </div>
+          <button
+            type="button"
+            className="btn btn-outline-danger logout-btn"
+            onClick={onLogout}
+          >
+            Logout
+          </button>
+        </div>
+      </header>
 
       {verificationSection}
+
+      <ExpenseTracker />
     </div>
   );
 }
