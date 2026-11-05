@@ -5,6 +5,7 @@ function Welcome({
   onCompleteProfile,
   onVerifyEmail,
   onRefreshVerification,
+  onLogout,
 }) {
   const [verificationLoading, setVerificationLoading] = useState(false);
   const [verificationMessage, setVerificationMessage] = useState("");
@@ -50,7 +51,6 @@ function Welcome({
     }
   };
 
-  // Shared verification section for both profile states
   const verificationSection = (
     <div className="verification-section">
       {user?.emailVerified ? (
@@ -106,6 +106,14 @@ function Welcome({
               Complete now
             </button>
           </div>
+
+          <button
+            type="button"
+            className="btn btn-outline-danger logout-btn"
+            onClick={onLogout}
+          >
+            Logout
+          </button>
         </header>
 
         {verificationSection}
@@ -116,6 +124,14 @@ function Welcome({
   // Completed profile screen
   return (
     <div className="welcome-container completed-welcome">
+      <button
+        type="button"
+        className="btn btn-outline-danger logout-btn"
+        onClick={onLogout}
+      >
+        Logout
+      </button>
+
       <div className="completed-content">
         <h1>Welcome to Expense Tracker!!!</h1>
 

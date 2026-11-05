@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 
 import Signup from "./components/Signup";
 import Login from "./components/Login";
@@ -33,12 +33,10 @@ function App() {
       }
 
       try {
-        // Get a fresh Firebase ID token
         const idToken = await user.getIdToken();
 
         localStorage.setItem("token", idToken);
 
-        // Fetch saved user details
         const profile = await getAccountInfo(idToken);
 
         if (!isMounted) return;
@@ -82,7 +80,7 @@ function App() {
     return sendEmailVerification(idToken);
   };
 
-  // Refresh verification status from Firebase
+  // Refresh verification status
   const handleRefreshVerification = async () => {
     if (!auth.currentUser) {
       throw new Error("Please log in again.");
@@ -94,6 +92,19 @@ function App() {
     setUserProfile(profile);
 
     return profile.emailVerified;
+  };
+
+  // Logout user
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+
+      localStorage.removeItem("token");
+
+      // onAuthStateChanged automatically redirects to Login
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
   if (authLoading) {
@@ -116,6 +127,7 @@ function App() {
           onCompleteProfile={() => setCurrentScreen("profile")}
           onVerifyEmail={handleVerifyEmail}
           onRefreshVerification={handleRefreshVerification}
+          onLogout={handleLogout}
         />
       )}
 

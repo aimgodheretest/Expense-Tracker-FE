@@ -205,6 +205,7 @@ body {
 /* Completed profile screen */
 
 .completed-welcome {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -404,5 +405,35 @@ body {
 
   .profile-form-container h4 {
     font-size: 19px;
+  }
+}
+
+/* Logout button */
+
+.logout-btn {
+  border: 1px solid #f33340;
+  color: #f33340;
+  padding: 9px 20px;
+  border-radius: 7px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: 0.2s ease;
+}
+
+.logout-btn:hover {
+  background: #f33340;
+  color: #fff;
+}
+
+.completed-welcome>.logout-btn {
+  position: absolute;
+  top: 20px;
+  right: 25px;
+}
+
+@media (max-width: 576px) {
+  .completed-welcome>.logout-btn {
+    top: 15px;
+    right: 15px;
   }
 }
